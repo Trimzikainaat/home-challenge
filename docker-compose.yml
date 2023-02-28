@@ -1,0 +1,60 @@
+version: '4.16'
+services:
+    # Frontend service runs React application
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: DockerFile
+
+        tty: true
+
+        ports:
+            - 3000:3000
+
+        volumes:
+            - ./frontend:/app/frontend
+
+        depends_on:
+            - backend
+
+        networks:
+            - app
+
+    backend:
+        build:
+            context: ./backend
+            dockerfile: DockerFile
+
+        environment:
+            DB_HOST: db
+            DB_PORT: 3306
+            DB_DATABASE: task
+            DB_USERNAME: task
+            DB_PASSWORD: task
+
+        volumes:
+            - ./backend:/app/backend
+
+        ports:
+            - 8000:8000
+
+        depends_on:
+            - db
+
+        networks:
+            - app
+
+    db:
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: 'task'
+            MYSQL_DATABASE: 'task'
+            MYSQL_USER: 'task'
+            MYSQL_PASSWORD: 'task'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+
+networks:
+    app:
+        driver: bridge
